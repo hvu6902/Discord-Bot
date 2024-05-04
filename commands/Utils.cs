@@ -15,32 +15,6 @@ namespace Discord_App.commands
 {
     internal class Utils : BaseCommandModule
     {
-        [Command("test")]
-        public async Task FirstCommand(CommandContext context)
-        {
-            await context.Channel.SendMessageAsync($"Dit me may {context.User.Username}");
-        }
-
-        [Command("add")]
-        public async Task Add(CommandContext context, int number1, int number2)
-        {
-            int result = number1 + number2;
-            await context.Channel.SendMessageAsync(result.ToString());
-        }
-
-        [Command("embed")]
-        public async Task EmbedMsg(CommandContext context)
-        {
-            var msg = new DiscordEmbedBuilder
-            {
-                Title = "Thong bao",
-                Description = $"Me thang {context.User.Username} beo vkl",
-                Color = DiscordColor.Blue,
-            };
-
-            await context.Channel.SendMessageAsync(embed: msg);
-        }
-
         [Command("card")]
         public async Task CardGame(CommandContext context)
         {
@@ -95,5 +69,77 @@ namespace Discord_App.commands
                 await context.Channel.SendMessageAsync(embed: loseMessage);
             }
         }
+        [Command("poll")]
+        public async Task Poll(CommandContext context, string option1, string option2, string option3, string option4, [RemainingText] string pollTitle)
+        {
+            var interactivity = Program.Client.GetInteractivity();
+            var pollTime = TimeSpan.FromSeconds(15);
+
+            DiscordEmoji[] emo = { DiscordEmoji.FromName(Program.Client, ":one:"),
+                                   DiscordEmoji.FromName(Program.Client, ":two:"),
+                                   DiscordEmoji.FromName(Program.Client, ":three:"),
+                                   DiscordEmoji.FromName(Program.Client, ":four:") };
+
+            string optionDescription = $"{emo[0]} | {option1} \n" +
+                                       $"{emo[1]} | {option2} \n" +
+                                       $"{emo[2]} | {option3} \n" +
+                                       $"{emo[3]} | {option4} \n";
+
+            var pollMsg = new DiscordEmbedBuilder()
+            {
+                Color = DiscordColor.Blue,
+                Title = pollTitle,
+                Description = optionDescription
+            };
+
+            var sentPoll = await context.Channel.SendMessageAsync(embed: pollMsg);
+            foreach (var emoji in emo)
+            {
+                await sentPoll.CreateReactionAsync(emoji);
+            }
+
+            var totalReactions = await interactivity.CollectReactionsAsync(sentPoll, pollTime);
+
+            int count1 = 0;
+            int count2 = 0;
+            int count3 = 0;
+            int count4 = 0;
+
+            foreach (var emoji in totalReactions)
+            {
+                if (emoji.Emoji == emo[0])
+                {
+                    count1++;
+                }
+                if (emoji.Emoji == emo[1])
+                {
+                    count2++;
+                }
+                if (emoji.Emoji == emo[2])
+                {
+                    count3++;
+                }
+                if (emoji.Emoji == emo[3])
+                {
+                    count4++;
+                }
+            }
+
+            int totalVotes = count1 + count2 + count3 + count4;
+            string result = $"{emo[0]}: {count1} votes \n" +
+                            $"{emo[1]}: {count2} votes \n" +
+                            $"{emo[2]}: {count3} votes \n" +
+                            $"{emo[3]}: {count4} votes \n" +
+                            $"Total votes = {totalVotes}";
+            var resultEmbed = new DiscordEmbedBuilder
+            {
+                Color = DiscordColor.Purple,
+                Title = "Result of the Poll",
+                Description = result
+            };
+
+            await context.Channel.SendMessageAsync(embed: resultEmbed);
+        }
     }
+
 }
