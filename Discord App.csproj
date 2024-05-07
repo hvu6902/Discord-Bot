@@ -145,6 +145,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="commands\InteractionCommands\InteractionComponents.cs" />
     <Compile Include="commands\Slash\CalculatorSlash.cs" />
     <Compile Include="commands\Slash\SlashCommands.cs" />
     <Compile Include="commands\Utils.cs" />

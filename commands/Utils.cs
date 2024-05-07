@@ -141,14 +141,6 @@ namespace Discord_App.commands
 
             await context.Channel.SendMessageAsync(embed: resultEmbed);
         }
-
-        [Command("spam")]
-        [Cooldown (5, 10, CooldownBucketType.User)]
-
-        public async Task TestCommand(CommandContext context)
-        {
-            await context.Channel.SendMessageAsync("Test Message");
-        }
     }
 
 }

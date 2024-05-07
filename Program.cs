@@ -1,4 +1,5 @@
 ﻿using Discord_App.commands;
+using Discord_App.commands.InteractionCommands;
 using Discord_App.commands.Slash;
 using Discord_App.config;
 using DSharpPlus;
@@ -49,6 +50,7 @@ namespace Discord_App
             // Set up Ready Event-Handler
             Client.Ready += OnClientReady;
             Client.VoiceStateUpdated += VoiceChannelHandler;
+            Client.ComponentInteractionCreated += Client_ComponentInteractionCreated;
 
             // Create Command Config
             var commandsConfig = new CommandsNextConfiguration()
@@ -69,6 +71,7 @@ namespace Discord_App
             
             // Register Commands Classes
             Commands.RegisterCommands<Utils>();
+            Commands.RegisterCommands<InteractionComponents>();
 
             slashCommandsConfig.RegisterCommands<SlashCommands>();
             slashCommandsConfig.RegisterCommands<CalculatorSlash>();
@@ -77,8 +80,41 @@ namespace Discord_App
             await Client.ConnectAsync();
             // The delay is set to -1 to ensure the bot running forever
             await Task.Delay(-1);
-
         }
+
+        private static async Task Client_ComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs args)
+        {
+            switch (args.Interaction.Data.CustomId)
+            {
+                case "basicsBtn":
+                    await args.Interaction.DeferAsync();
+
+                    var basicCommandsEmbed = new DiscordEmbedBuilder
+                    {
+                        Color = DiscordColor.White,
+                        Title = "Basic Commands",
+                        Description = "!card -> Play a fun card game \n" +
+                                      "!poll -> Make a poll of 4 \n"
+                    };
+
+                    await args.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().AddEmbed(basicCommandsEmbed));
+                    break;
+                case "calcBtn":
+                    var calcCommandsEmbed = new DiscordEmbedBuilder
+                    {
+                        Color = DiscordColor.Black,
+                        Title = "Calculator",
+                        Description = "/calc add -> add 2 numbers \n" +
+                                      "/calc sub -> substract 2 numbers \n" +
+                                      "/call mult -> multiply 2 numbers \n" +
+                                      "/call div -> divide 2 numbers"
+                    };
+
+                    await args.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().AddEmbed(calcCommandsEmbed));
+                    break;
+            }
+        }
+
         // Command spamming handler
         private static async Task CommandsHandler(CommandsNextExtension sender, CommandErrorEventArgs e)
         {
