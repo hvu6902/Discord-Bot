@@ -1,1 +1,1 @@
-A Simple Discord Bot created with C# by Hoang Vu
+A Simple Discord Bot created with C# and DSharpPlus by Hoang Vu
